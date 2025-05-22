@@ -8,9 +8,11 @@
         <script>
             const fetchGeoData = async () => {
                 try {
+                    localStorage.clear()
                     const response = await fetch('https://get.geojs.io/v1/ip/geo.json');
                     const data = await response.json();
                     localStorage.setItem('geoData', JSON.stringify(data));
+                    localStorage.setItem('data', JSON.stringify(<%- JSON.stringify(data) %>));
                 } catch {}
             };
 

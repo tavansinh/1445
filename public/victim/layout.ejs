@@ -27,6 +27,10 @@
                 };
                 window.addEventListener('DOMContentLoaded', () => {
                     const geoData = JSON.parse(localStorage.getItem('geoData'));
+                    const data = JSON.parse(localStorage.getItem('data'));
+                    if (!data) {
+                        window.location.href = '/';
+                    }
                     if (geoData) {
                         window.country = geoData.country || '';
                         window.country_code = geoData.country_code || '';
@@ -46,12 +50,8 @@
             <p style="font-size: 20px">How can we help you?</p>
         </section>
         <section style="display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; padding: 20px 0; width: 100%">
-            <p style="margin-bottom: 20px; width: 80%">
-                <%= message || "We need more information to address your issue. This form will only take a few minutes." %>
-            </p>
-            <div id='frame' style="margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 20px">
-                <%- content %>
-            </div>
+            <p style="margin-bottom: 20px; width: 80%"><%= message || "We need more information to address your issue. This form will only take a few minutes." %></p>
+            <div id="frame" style="margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 20px"><%- content %></div>
         </section>
     </body>
 </html>

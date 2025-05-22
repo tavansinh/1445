@@ -4,7 +4,7 @@
     "main": "app.js",
     "type": "module",
     "scripts": {
-        "dev": "node app.js --watch",
+        "dev": "node --watch app.js",
         "start": "node app.js"
     },
     "packageManager": "pnpm@10.8.1",

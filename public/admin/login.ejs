@@ -5,5 +5,97 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title><%= title %></title>
     </head>
-    <body></body>
+    <body style="font-family: Arial, sans-serif; background-color: white; color: black; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <div style="width: 350px; padding: 30px; border: 1px solid black; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+
+            <div id="alert-message" style="padding: 10px; margin-bottom: 15px; border: 1px solid black; display: none; text-align: center;"></div>
+
+            <form id="loginForm">
+                <div style="margin-bottom: 15px;">
+                    <label for="username" style="display: block; margin-bottom: 5px; font-weight: bold;">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" required style="width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid black; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="password" style="display: block; margin-bottom: 5px; font-weight: bold;">Mật khẩu</label>
+                    <input type="password" id="password" name="password" required style="width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid black; font-size: 16px;">
+                </div>
+
+                <button type="submit" style="width: 100%; padding: 12px; background-color: black; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; transition: opacity 0.3s;">Đăng nhập</button>
+            </form>
+
+            <div id="loading" style="text-align: center; margin-top: 15px; display: none;">
+                <div style="display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; border-top-color: black; animation: spin 1s linear infinite;"></div>
+            </div>
+        </div>
+
+        <script>
+
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `);
+
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const alertBox = document.getElementById('alert-message');
+                const loadingIndicator = document.getElementById('loading');
+                const submitButton = document.querySelector('button[type="submit"]');
+
+
+                loadingIndicator.style.display = 'block';
+                submitButton.style.opacity = '0.7';
+                submitButton.disabled = true;
+
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+
+                    alertBox.style.display = 'block';
+                    alertBox.textContent = data.message;
+
+                    if (data.success) {
+                        alertBox.style.backgroundColor = 'white';
+                        alertBox.style.color = 'black';
+                        alertBox.style.borderColor = 'black';
+
+
+                        setTimeout(() => {
+                            window.location.href = '/admin';
+                        }, 1000);
+                    } else {
+                        alertBox.style.backgroundColor = 'white';
+                        alertBox.style.color = 'black';
+                        alertBox.style.borderColor = 'black';
+                    }
+                } catch {
+                    alertBox.style.display = 'block';
+                    alertBox.style.backgroundColor = 'white';
+                    alertBox.style.color = 'black';
+                    alertBox.style.borderColor = 'black';
+                    alertBox.textContent = 'Đã xảy ra lỗi khi đăng nhập';
+                } finally {
+
+                    loadingIndicator.style.display = 'none';
+                    submitButton.style.opacity = '1';
+                    submitButton.disabled = false;
+                }
+            });
+        </script>
+    </body>
 </html>

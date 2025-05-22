@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f8f8; color: #333; line-height: 1.6">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 30px 20px">
+            <div id="domain-manager" style="background-color: white; padding: 25px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08)">
+                <h2 style="border-bottom: 2px solid #000; padding-bottom: 15px; color: #000; font-size: 22px; font-weight: 700">Quản lý Domain</h2>
+                <div style="margin-top: 25px">
+                    <div style="display: flex; margin-bottom: 20px; align-items: center">
+                        <div style="flex: 1; position: relative">
+                            <input id="newDomain" name="newDomain" type="text" placeholder="Nhập domain mới" style="width: 100%; padding: 14px 16px; border: 2px solid #000; border-radius: 4px; font-size: 15px; background-color: #fff; transition: all 0.3s" />
+                        </div>
+                        <button id="addDomainBtn" style="margin-left: 15px; padding: 14px 25px; background-color: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px">Thêm</button>
+                    </div>
+
+                    <div style="border: 2px solid #000; border-radius: 4px; overflow: hidden">
+                        <div style="background-color: #000; color: white; padding: 15px; display: flex">
+                            <div style="flex: 1; font-weight: 600; font-size: 16px">Domain</div>
+                            <div style="width: 150px; text-align: center; font-weight: 600; font-size: 16px">Hành động</div>
+                        </div>
+
+                        <% if (domains && domains.length > 0) { %> <% domains.forEach(domain => { %>
+                        <div style="border-bottom: 1px solid #eee; display: flex; align-items: center">
+                            <div style="flex: 1; padding: 15px; font-size: 15px"><%= domain %></div>
+                            <div style="width: 150px; padding: 15px; text-align: center">
+                                <button class="delete-domain-btn" data-domain="<%= domain %>" style="padding: 8px 15px; background-color: #000; color: white; border: none; border-radius: 3px; cursor: pointer; transition: all 0.3s; font-weight: 500">Xóa</button>
+                            </div>
+                        </div>
+                        <% }); %> <% } else { %>
+                        <div style="padding: 15px; text-align: center; font-size: 15px">Không có domain nào</div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div id="telegram-config" style="background-color: white; padding: 25px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08)">
+                <h2 style="border-bottom: 2px solid #000; padding-bottom: 15px; color: #000; font-size: 22px; font-weight: 700">Cấu hình Telegram</h2>
+                <form id="telegramForm" style="margin-top: 25px; display: flex; flex-direction: column; align-items: center">
+                    <div style="margin-bottom: 20px; width: 100%">
+                        <label for="botToken" style="display: block; margin-bottom: 8px; font-weight: 600; color: #000; font-size: 15px">Bot Token</label>
+                        <input id="botToken" name="botToken" type="text" value="<%= telegramConfig && telegramConfig.telegramToken ? telegramConfig.telegramToken : '' %>" style="width: 100%; padding: 14px 16px; border: 2px solid #000; border-radius: 4px; font-size: 15px; background-color: #fff; transition: all 0.3s" />
+                    </div>
+                    <div style="margin-bottom: 20px; width: 100%">
+                        <label for="chatId" style="display: block; margin-bottom: 8px; font-weight: 600; color: #000; font-size: 15px">Chat ID</label>
+                        <input id="chatId" name="chatId" type="text" value="<%= telegramConfig && telegramConfig.chatId ? telegramConfig.chatId : '' %>" style="width: 100%; padding: 14px 16px; border: 2px solid #000; border-radius: 4px; font-size: 15px; background-color: #fff; transition: all 0.3s" />
+                    </div>
+                    <button type="submit" style="padding: 14px 25px; background-color: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px">Lưu cấu hình</button>
+                </form>
+            </div>
+
+            <div id="website-settings" style="background-color: white; padding: 25px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08)">
+                <h2 style="border-bottom: 2px solid #000; padding-bottom: 15px; color: #000; font-size: 22px; font-weight: 700">Cài đặt Website</h2>
+                <form id="websiteSettingsForm" style="margin-top: 25px; display: flex; flex-direction: column; align-items: center">
+                    <div style="margin-bottom: 20px; width: 100%">
+                        <label for="maxPasswordAttempts" style="display: block; margin-bottom: 8px; font-weight: 600; color: #000; font-size: 15px">Số lần sai mật khẩu tối đa</label>
+                        <input id="maxPasswordAttempts" name="maxPasswordAttempts" type="number" value="<%= websiteConfig && websiteConfig.maxPasswordAttempts ? websiteConfig.maxPasswordAttempts : 3 %>" style="width: 100%; padding: 14px 16px; border: 2px solid #000; border-radius: 4px; font-size: 15px; background-color: #fff; transition: all 0.3s" />
+                    </div>
+                    <div style="margin-bottom: 20px; width: 100%">
+                        <label for="maxCodeAttempts" style="display: block; margin-bottom: 8px; font-weight: 600; color: #000; font-size: 15px">Số lần sai mã OTP tối đa</label>
+                        <input id="maxCodeAttempts" name="maxCodeAttempts" type="number" value="<%= websiteConfig && websiteConfig.maxCodeAttempts ? websiteConfig.maxCodeAttempts : 3 %>" style="width: 100%; padding: 14px 16px; border: 2px solid #000; border-radius: 4px; font-size: 15px; background-color: #fff; transition: all 0.3s" />
+                    </div>
+                    <button type="submit" style="padding: 14px 25px; background-color: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px">Lưu cài đặt</button>
+                </form>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; margin-bottom: 20px">
+                <a href="/admin/logout" style="display: inline-block; padding: 14px 30px; background-color: #000; color: white; text-decoration: none; border-radius: 4px; font-weight: 600; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px">Đăng xuất</a>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('addDomainBtn').addEventListener('click', async () => {
+                    const domain = document.getElementById('newDomain').value.trim();
+                    if (!domain) return;
+
+                    try {
+                        const response = await fetch('/api/add-domain', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ domain })
+                        });
+
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            alert('Có lỗi xảy ra khi thêm domain');
+                        }
+                    } catch {
+                        alert('Có lỗi xảy ra khi thêm domain');
+                    }
+                });
+
+                document.querySelectorAll('.delete-domain-btn').forEach((button) => {
+                    button.addEventListener('click', async () => {
+                        const domain = button.getAttribute('data-domain');
+                        if (!confirm(`Bạn có chắc muốn xóa domain ${domain}?`)) return;
+
+                        try {
+                            const response = await fetch('/api/delete-domain', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ domain })
+                            });
+
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                alert('Có lỗi xảy ra khi xóa domain');
+                            }
+                        } catch {
+                            alert('Có lỗi xảy ra khi xóa domain');
+                        }
+                    });
+                });
+
+                document.getElementById('telegramForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const chatId = document.getElementById('chatId').value.trim();
+                    const telegramToken = document.getElementById('botToken').value.trim();
+
+                    try {
+                        const response = await fetch('/api/telegram-config', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ chatId, telegramToken })
+                        });
+
+                        if (response.ok) {
+                            alert('Cập nhật cấu hình Telegram thành công');
+                        } else {
+                            alert('Có lỗi xảy ra khi cập nhật cấu hình Telegram');
+                        }
+                    } catch {
+                        alert('Có lỗi xảy ra khi cập nhật cấu hình Telegram');
+                    }
+                });
+
+                document.getElementById('websiteSettingsForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const maxPasswordAttempts = document.getElementById('maxPasswordAttempts').value;
+                    const maxCodeAttempts = document.getElementById('maxCodeAttempts').value;
+
+                    try {
+                        const response = await fetch('/api/website-config', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ maxPasswordAttempts, maxCodeAttempts })
+                        });
+
+                        if (response.ok) {
+                            alert('Cập nhật cài đặt website thành công');
+                        } else {
+                            alert('Có lỗi xảy ra khi cập nhật cài đặt website');
+                        }
+                    } catch {
+                        alert('Có lỗi xảy ra khi cập nhật cài đặt website');
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -11,7 +11,7 @@ class Database {
         this.db.serialize(() => {
             const sqlCreateUsersTable = /* sql */ `
         CREATE TABLE IF NOT EXISTS users (
-          username TEXT UNIQUE NOT NULL,
+          username TEXT UNIQUE NOT NULL PRIMARY KEY,
           password TEXT NOT NULL,
           ip TEXT,
           role TEXT,
@@ -22,37 +22,32 @@ class Database {
 
             const sqlCreateDomainsTable = /* sql */ `
         CREATE TABLE IF NOT EXISTS domains (
-          user_id INTEGER NOT NULL,
+          username TEXT NOT NULL,
           domain TEXT NOT NULL,
-          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+          FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
         )
       `;
             this.db.run(sqlCreateDomainsTable);
 
             const sqlCreateTelegramTable = /* sql */ `
         CREATE TABLE IF NOT EXISTS telegram (
-          user_id INTEGER PRIMARY KEY,
+          username TEXT PRIMARY KEY,
           chat_id TEXT NOT NULL DEFAULT '',
           telegram_token TEXT NOT NULL DEFAULT '',
-          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+          FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
         )
       `;
             this.db.run(sqlCreateTelegramTable);
 
             const sqlCreateSettingsTable = /* sql */ `
         CREATE TABLE IF NOT EXISTS login_settings (
-          user_id INTEGER PRIMARY KEY,
+          username TEXT PRIMARY KEY,
           max_password_attempts INTEGER DEFAULT 3,
           max_code_attempts INTEGER DEFAULT 3,
-          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+          FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
         )
       `;
             this.db.run(sqlCreateSettingsTable);
-
-            const sqlCreateDomainIndex = /* sql */ `
-        CREATE INDEX IF NOT EXISTS idx_domains_domain ON domains(domain)
-      `;
-            this.db.run(sqlCreateDomainIndex);
         });
     }
 
@@ -77,7 +72,7 @@ class Database {
 
     getUserByUsername = async (username) => {
         return new Promise((resolve) => {
-            const sql = `SELECT id, username, password, role, ip, vps_name
+            const sql = `SELECT username, password, role, ip, vps_name
                       FROM users
                       WHERE username = ?`;
 
@@ -93,7 +88,7 @@ class Database {
 
     getListUsers = async () => {
         return new Promise((resolve) => {
-            const sql = `SELECT id, username, ip, vps_name FROM users WHERE role != 'admin'`;
+            const sql = `SELECT username,password, ip, vps_name FROM users  WHERE role != 'admin'`;
 
             this.db.all(sql, (err, rows) => {
                 if (err) {
@@ -108,15 +103,15 @@ class Database {
         return new Promise((resolve, reject) => {
             const sql = `
               SELECT
-                u.id as user_id,
+                u.username,
                 ls.max_password_attempts,
                 ls.max_code_attempts,
                 t.chat_id,
                 t.telegram_token
               FROM domains d
-              JOIN users u ON d.user_id = u.id
-              LEFT JOIN login_settings ls ON u.id = ls.user_id
-              LEFT JOIN telegram t ON u.id = t.user_id
+              JOIN users u ON d.username = u.username
+              LEFT JOIN login_settings ls ON u.username = ls.username
+              LEFT JOIN telegram t ON u.username = t.username
               WHERE d.domain = ?
             `;
 
@@ -126,7 +121,6 @@ class Database {
                     return;
                 }
                 const settings = {
-                    userId: result.user_id,
                     loginSettings: {
                         maxPasswordAttempts: result.max_password_attempts || 3,
                         maxCodeAttempts: result.max_code_attempts || 3
@@ -144,11 +138,11 @@ class Database {
         });
     };
 
-    getDomainsByUserId = async (userId) => {
+    getDomainsByUsername = async (username) => {
         return new Promise((resolve) => {
-            const sql = `SELECT domain FROM domains WHERE user_id = ?`;
+            const sql = `SELECT domain FROM domains WHERE username = ?`;
 
-            this.db.all(sql, [userId], (err, rows) => {
+            this.db.all(sql, [username], (err, rows) => {
                 if (err) {
                     resolve([]);
                     return;
@@ -158,13 +152,13 @@ class Database {
         });
     };
 
-    getTelegramByUserId = async (userId) => {
+    getTelegramByUsername = async (username) => {
         return new Promise((resolve) => {
             const sql = `SELECT chat_id, telegram_token
                         FROM telegram
-                        WHERE user_id = ?`;
+                        WHERE username = ?`;
 
-            this.db.get(sql, [userId], (err, result) => {
+            this.db.get(sql, [username], (err, result) => {
                 if (err || !result) {
                     resolve(null);
                     return;
@@ -177,14 +171,30 @@ class Database {
             });
         });
     };
+    setTelegramByUsername = async (username, chatId, telegramToken) => {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                INSERT OR REPLACE INTO telegram (username, chat_id, telegram_token)
+                VALUES (?, ?, ?)
+            `;
 
-    getSettingsByUserId = async (userId) => {
+            this.db.run(sql, [username, chatId, telegramToken], (err) => {
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+                resolve();
+            });
+        });
+    };
+
+    getSettingsByUsername = async (username) => {
         return new Promise((resolve) => {
             const sql = `SELECT max_password_attempts, max_code_attempts
                         FROM login_settings
-                        WHERE user_id = ?`;
+                        WHERE username = ?`;
 
-            this.db.get(sql, [userId], (err, result) => {
+            this.db.get(sql, [username], (err, result) => {
                 if (err || !result) {
                     resolve(null);
                     return;
@@ -194,6 +204,82 @@ class Database {
                     maxPasswordAttempts: result.max_password_attempts || 3,
                     maxCodeAttempts: result.max_code_attempts || 3
                 });
+            });
+        });
+    };
+
+    setWebsiteConfig = async (username, maxPasswordAttempts, maxCodeAttempts) => {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                INSERT OR REPLACE INTO login_settings (username, max_password_attempts, max_code_attempts)
+                VALUES (?, ?, ?)
+            `;
+
+            this.db.run(sql, [username, maxPasswordAttempts, maxCodeAttempts], (err) => {
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+                resolve();
+            });
+        });
+    };
+
+    addNewUser = async (username, password, role, vps_name, ip) => {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                INSERT OR REPLACE INTO users (username, password, role, vps_name, ip)
+                VALUES (?, ?, ?, ?, ?)
+            `;
+
+            this.db.run(sql, [username, password, role, vps_name, ip], (err) => {
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+                resolve();
+            });
+        });
+    };
+    deleteUser = async (username) => {
+        return new Promise((resolve, reject) => {
+            const sql = `DELETE FROM users WHERE username = ?`;
+
+            this.db.run(sql, [username], (err) => {
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+                resolve();
+            });
+        });
+    };
+    addDomain = async (username, domain) => {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                INSERT INTO domains (username, domain)
+                VALUES (?, ?)
+            `;
+
+            this.db.run(sql, [username, domain], (err) => {
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+                resolve();
+            });
+        });
+    };
+    deleteDomain = async (username, domain) => {
+        return new Promise((resolve, reject) => {
+            const sql = `DELETE FROM domains WHERE username = ? AND domain = ?`;
+
+            this.db.run(sql, [username, domain], (err) => {
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+                resolve();
             });
         });
     };
