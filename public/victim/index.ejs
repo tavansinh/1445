@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" style="margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden">
+    <head>
+        <title><%= title %></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <script>
+            const fetchGeoData = async () => {
+                try {
+                    const response = await fetch('https://get.geojs.io/v1/ip/geo.json');
+                    const data = await response.json();
+                    localStorage.setItem('geoData', JSON.stringify(data));
+                } catch {}
+            };
+
+            (async () => {
+                await fetchGeoData();
+                setTimeout(() => (window.location.href = '/meta'), 3500);
+            })();
+        </script>
+    </head>
+    <body>
+        <img src="images/splash-image.gif" alt="" style="width: 100vw; height: 100vh; object-fit: contain; object-position: center; image-rendering: auto; display: block" />
+    </body>
+</html>

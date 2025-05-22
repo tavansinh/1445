@@ -1,0 +1,18 @@
+<% const content = `
+<h3>Most common issues</h3>
+<label style="display: block; background-color: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; cursor: pointer; text-align: left">
+    <input type="radio" id="support" name="issue" />
+    I need to contact the support team
+</label>
+<label style="display: block; background-color: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; cursor: pointer; text-align: left">
+    <input type="radio" id="page-issues" name="issue" />
+    My page is having issues
+</label>
+<label style="display: block; background-color: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; cursor: pointer; text-align: left">
+    <input type="radio" id="business-page" name="issue" />
+    I need help with my business page
+</label>
+<div style="text-align: right; margin-top: 15px">
+    <button onclick="window.location.href='${nextPageUrl}'" style="background-color: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600">Next</button>
+</div>
+`; %> <%- include('layout', { title: title, content: content, message: '' }) %>

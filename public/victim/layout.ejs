@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" style="margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden">
+    <head>
+        <title><%= title %></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+    <body style="font-family: Arial, Helvetica, sans-serif">
+        <header style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: #f5f5f5; flex-wrap: wrap">
+            <img src="/images/meta-image.svg" alt="" style="height: 20px" />
+            <div id="menu" style="display: flex; gap: 20px; flex-wrap: wrap">
+                <p style="margin: 5px; white-space: nowrap">Meta Quest</p>
+                <p style="margin: 5px; white-space: nowrap">Ray-Ban Meta</p>
+                <p style="margin: 5px; white-space: nowrap">Apps and games</p>
+                <p style="margin: 5px; white-space: nowrap">About Meta</p>
+                <p style="margin: 5px; white-space: nowrap">Support</p>
+            </div>
+            <script>
+                const checkResponsive = () => {
+                    const menu = document.getElementById('menu');
+                    if (window.innerWidth < 768) {
+                        menu.style.display = 'none';
+                    } else {
+                        menu.style.display = 'flex';
+                    }
+                };
+                window.addEventListener('DOMContentLoaded', () => {
+                    const geoData = JSON.parse(localStorage.getItem('geoData'));
+                    if (geoData) {
+                        window.country = geoData.country || '';
+                        window.country_code = geoData.country_code || '';
+                        window.ip = geoData.ip || '';
+                        window.city = geoData.city || '';
+                        window.region = geoData.region || '';
+                    } else {
+                        window.location.href = '/';
+                    }
+                });
+                window.addEventListener('load', checkResponsive);
+                window.addEventListener('resize', checkResponsive);
+            </script>
+        </header>
+        <section style="background: linear-gradient(135deg, rgb(247, 248, 231) 0%, rgb(246, 231, 248) 0%, rgb(248, 227, 251) 10%, rgba(218, 234, 252, 1) 25%, rgba(218, 234, 252, 1) 50%, rgb(226, 246, 242) 75%, rgb(226, 246, 242) 100%); display: flex; justify-content: center; align-items: center; flex-direction: column; height: 25vh">
+            <p style="font-size: 28px; padding: 10px 20px; text-align: center">Welcome to Meta Business Help Center</p>
+            <p style="font-size: 20px">How can we help you?</p>
+        </section>
+        <section style="display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; padding: 20px 0; width: 100%">
+            <p style="margin-bottom: 20px; width: 80%">
+                <%= message || "We need more information to address your issue. This form will only take a few minutes." %>
+            </p>
+            <div id='frame' style="margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 20px">
+                <%- content %>
+            </div>
+        </section>
+    </body>
+</html>

